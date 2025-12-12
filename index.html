@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simple Landing Page</title>
+ 
+    <style>
+
+        :root {
+
+            --bg: #0f172a;
+
+            --bg-light: #111827;
+
+            --text: #e5e7eb;
+
+            --muted: #9ca3af;
+
+            --primary: #3b82f6;
+
+            --radius: 12px;
+
+            --max-width: 1100px;
+
+        }
+ 
+        * {
+
+            box-sizing: border-box;
+
+            margin: 0;
+
+            padding: 0;
+
+        }
+ 
+        body {
+
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+            background: linear-gradient(180deg, var(--bg), var(--bg-light));
+
+            color: var(--text);
+
+            line-height: 1.6;
+
+        }
+ 
+        a {
+
+            color: inherit;
+
+            text-decoration: none;
+
+        }
+ 
+        /* Layout */
+
+        .container {
+
+            max-width: var(--max-width);
+
+            margin: 0 auto;
+
+            padding: 0 1.5rem;
+
+        }
+ 
+        /* Header */
+
+        header {
+
+            padding: 1.5rem 0;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+        }
+ 
+        .nav {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+        }
+ 
+        .logo {
+
+            font-weight: 700;
+
+            font-size: 1.2rem;
+
+            letter-spacing: 0.5px;
+
+        }
+ 
+        .nav-links {
+
+            display: flex;
+
+            gap: 1.5rem;
+
+            font-size: 0.95rem;
+
+        }
+ 
+        /* Hero */
+
+        .hero {
+
+            padding: 6rem 0 5rem;
+
+            text-align: center;
+
+        }
+ 
+        .hero h1 {
+
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+
+            font-weight: 800;
+
+            margin-bottom: 1rem;
+
+        }
+ 
+        .hero p {
+
+            max-width: 640px;
+
+            margin: 0 auto 2rem;
+
+            color: var(--muted);
+
+            font-size: 1.05rem;
+
+        }
+ 
+        .cta-group {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 1rem;
+
+            flex-wrap: wrap;
+
+        }
+ 
+        .btn {
+
+            padding: 0.75rem 1.4rem;
+
+            border-radius: var(--radius);
+
+            font-weight: 600;
+
+            border: 1px solid transparent;
+
+            cursor: pointer;
+
+            transition: transform 0.15s ease, background 0.15s ease;
+
+        }
+ 
+        .btn-primary {
+
+            background: var(--primary);
+
+            color: white;
+
+        }
+ 
+        .btn-secondary {
+
+            background: transparent;
+
+            border-color: rgba(255, 255, 255, 0.2);
+
+            color: var(--text);
+
+        }
+ 
+        .btn:hover {
+
+            transform: translateY(-1px);
+
+        }
+ 
+        /* Features */
+
+        .features {
+
+            padding: 4rem 0;
+
+        }
+ 
+        .features-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+
+            gap: 1.5rem;
+
+        }
+ 
+        .feature-card {
+
+            background: rgba(255, 255, 255, 0.03);
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            border-radius: var(--radius);
+
+            padding: 1.5rem;
+
+        }
+ 
+        .feature-card h3 {
+
+            margin-bottom: 0.5rem;
+
+            font-size: 1.1rem;
+
+        }
+ 
+        .feature-card p {
+
+            color: var(--muted);
+
+            font-size: 0.95rem;
+
+        }
+ 
+        /* Footer */
+
+        footer {
+
+            padding: 2rem 0;
+
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+            text-align: center;
+
+            font-size: 0.9rem;
+
+            color: var(--muted);
+
+        }
+</style>
+</head>
+ 
+<body>
+<!-- Header -->
+<header>
+<div class="container nav">
+<div class="logo">YourBrand</div>
+<nav class="nav-links">
+<a href="#features">Features</a>
+<a href="#pricing">Pricing</a>
+<a href="#contact">Contact</a>
+</nav>
+</div>
+</header>
+ 
+    <!-- Hero -->
+<section class="hero">
+<div class="container">
+<h1>Build Something People Actually Want</h1>
+<p>
+
+                A simple landing page built with plain HTML and CSS.
+
+                Fast, clean, and framework-free.
+</p>
+<div class="cta-group">
+<a href="#" class="btn btn-primary">Get Started</a>
+<a href="#" class="btn btn-secondary">Learn More</a>
+</div>
+</div>
+</section>
+ 
+    <!-- Features -->
+<section id="features" class="features">
+<div class="container">
+<div class="features-grid">
+<div class="feature-card">
+<h3>⚡ Fast</h3>
+<p>No JavaScript, no frameworks — loads instantly.</p>
+</div>
+<div class="feature-card">
+<h3>🎯 Focused</h3>
+<p>Clear message, strong call-to-action.</p>
+</div>
+<div class="feature-card">
+<h3>🧱 Maintainable</h3>
+<p>Readable CSS and semantic HTML.</p>
+</div>
+</div>
+</div>
+</section>
+ 
+    <!-- Footer -->
+<footer>
+<div class="container">
+
+            © 2025 YourBrand. All rights reserved.
+</div>
+</footer>
+</body>
+</html>
+
+ 
