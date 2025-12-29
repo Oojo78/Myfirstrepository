@@ -1,0 +1,146 @@
+name: Auto Tag Semantic Version
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.tf'
+      - '**/*.tfvars'
+      - '**/*.json'
+      - 'modules/**'
+      - '.github/workflows/auto-tag.yml'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto_semver:
+    name: Automatic Semantic Version Tagging
+    runs-on: ubuntu-latest
+
+    steps:
+      ###############################################################
+      # 0. Checkout full repo history (required for tags)
+      ###############################################################
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      ###############################################################
+      # 1. Get latest GLOBAL semantic tag vX.Y.Z (exclude module tags)
+      ###############################################################
+      - name: Get Latest Semantic Tag
+        id: get_latest_tag
+        run: |
+          # Get only tags matching vX.Y.Z
+          tag=$(git tag --list "v*" | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" | sort -V | tail -n 1)
+
+          if [ -z "$tag" ]; then
+            echo "No semantic tags found. Using v0.0.0"
+            tag="v0.0.0"
+          fi
+
+          echo "latest_tag=$tag" >> $GITHUB_OUTPUT
+          echo "Latest semantic version tag: $tag"
+
+      ###############################################################
+      # 2. Detect changed files since the last semantic tag
+      ###############################################################
+      - name: Detect Changed Files
+        id: detect_changes
+        run: |
+          latest="${{ steps.get_latest_tag.outputs.latest_tag }}"
+
+          if [ "$latest" = "v0.0.0" ]; then
+            base=$(git rev-list --max-parents=0 HEAD)
+          else
+            base="$latest"
+          fi
+
+          echo "Diffing from $base to HEAD"
+
+          CHANGED=$(git diff --name-only "$base" HEAD)
+
+          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      ###############################################################
+      # 3. Decide version bump based on Conventional Commit messages
+      ###############################################################
+      - name: Determine Version Bump
+        id: bump
+        run: |
+          latest="${{ steps.get_latest_tag.outputs.latest_tag }}"
+
+          if [ "$latest" = "v0.0.0" ]; then
+            # First release → force patch version
+            echo "level=patch" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          COMMITS=$(git log $latest..HEAD --pretty=format:"%s")
+
+          echo "Commits since last tag:"
+          echo "$COMMITS"
+
+          if echo "$COMMITS" | grep -q "BREAKING CHANGE"; then
+            echo "level=major" >> $GITHUB_OUTPUT
+          elif echo "$COMMITS" | grep -q "^feat"; then
+            echo "level=minor" >> $GITHUB_OUTPUT
+          else
+            echo "level=patch" >> $GITHUB_OUTPUT
+          fi
+
+      ###############################################################
+      # 4. Compute new semantic version number
+      ###############################################################
+      - name: Compute New Version
+        id: compute_version
+        run: |
+          old="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          level="${{ steps.bump.outputs.level }}"
+
+          old_no_v=${old#v}
+
+          major=$(echo $old_no_v | cut -d. -f1)
+          minor=$(echo $old_no_v | cut -d. -f2)
+          patch=$(echo $old_no_v | cut -d. -f3)
+
+          if [ "$level" = "major" ]; then
+            major=$((major+1)); minor=0; patch=0
+          elif [ "$level" = "minor" ]; then
+            minor=$((minor+1)); patch=0
+          else
+            patch=$((patch+1))
+          fi
+
+          new="v${major}.${minor}.${patch}"
+          echo "new_tag=$new" >> $GITHUB_OUTPUT
+
+          echo "Bumping version: $old → $new"
+
+      ###############################################################
+      # 5. Create and push the Git tag
+      ###############################################################
+      - name: Create and Push Tag
+        run: |
+          new="${{ steps.compute_version.outputs.new_tag }}"
+
+          echo "Tagging repository with $new"
+
+          git tag "$new"
+          git push origin "$new"
+
+      ###############################################################
+      # 6. Automated GitHub Release (with notes)
+      ###############################################################
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.compute_version.outputs.new_tag }}
+          generate_release_notes: true
+ 
